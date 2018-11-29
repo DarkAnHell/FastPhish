@@ -2,9 +2,9 @@
 
 binary = a.out
 
-proto:
+api:
 	@echo "Building .proto files..."
-	@protoc -I proto -I${GOPATH}/src --go_out=plugins=grpc:proto proto/*/*.proto
+	@protoc -I proto -I${GOPATH}/src --go_out=plugins=grpc:proto api/*/*.proto
 
 clean:
 	@echo "Cleaning..."
@@ -15,4 +15,4 @@ build:
 	@echo "Building binaries"
 	@go build ./... $(binary)
 
-all: clean proto build
+all: clean api build
