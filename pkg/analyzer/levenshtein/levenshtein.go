@@ -21,7 +21,9 @@ func min(a, b, c int) int {
 
 // Translates the score given by the algorithm into a usable score
 // (see) Analyze's docs)
-func translateScore()
+func translateScore(score int, threshold int) int {
+	return (score * 100) / threshold
+}
 
 // Process is the implementation of analyzer's Process
 func (l Levenshtein) Process(
@@ -94,7 +96,8 @@ func (l Levenshtein) internalProcess(
 			}
 
 			// Return score
-			out <- analyzer.DomainScore{Domain: domain, Score: mat[lenInput-1][lenDomain-1]}
+			// TODO: Pass threshold as part of config, not hardcoded
+			out <- analyzer.DomainScore{Domain: domain, Score: translateScore(mat[lenInput-1][lenDomain-1], 5)}
 
 		case <-stop:
 			// stop
