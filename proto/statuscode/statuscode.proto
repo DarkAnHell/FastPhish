@@ -1,0 +1,28 @@
+syntax = "proto3";
+package statuscode;
+
+// Status codes for any type of response, by both server or client.
+enum StatusCode {
+    // XX - Debug codes. This should only be used during development.
+    GENERIC_DEBUG = 0;
+
+    // 1XX - OK
+
+    // Should only be used if none other OK message is valid, and for some reason
+    // you did not implement a custom OK code for your case.
+    GENERIC_OK = 100;
+
+    // 2XX - Client Errors
+
+    // Should only be used if none other Client Error message is valid, and for some reason
+    // you did not implement a custom Client Error code for your case.
+    GENERIC_C_ERROR = 200;
+
+    // 3XX - Server Errors
+
+    // Should only be used if none other Server Error message is valid, and for some reason
+    // you did not implement a custom Server Error code for your case.
+    GENERIC_C_SERVER = 300;
+
+    // 9XX - Information
+}
