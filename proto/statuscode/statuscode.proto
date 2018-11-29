@@ -22,7 +22,7 @@ enum StatusCode {
 
     // Should only be used if none other Server Error message is valid, and for some reason
     // you did not implement a custom Server Error code for your case.
-    GENERIC_C_SERVER = 300;
+    GENERIC_S_ERROR = 300;
 
     // 9XX - Information
 }
