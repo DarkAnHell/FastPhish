@@ -8,4 +8,5 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-proto/*/*.pb.go
+# Api auto-generated
+api/*/*.pb.go
