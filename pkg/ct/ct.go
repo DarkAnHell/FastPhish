@@ -52,6 +52,7 @@ func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- dom
 		for _, entry := range re.Entries {
 			le, err := ct.LogEntryFromLeaf(int64(index), &entry)
 			if err != nil {
+				// TODO: switch to a real logger.
 				log.Printf("could not convert LeafEntry to LogEntry: %v", err)
 				continue
 			}
