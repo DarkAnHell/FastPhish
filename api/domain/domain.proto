@@ -1,0 +1,8 @@
+syntax = "proto3";
+package domain;
+
+// Domain representation.
+message Domain {
+    // Name is the UTF-8 representation of the domain
+    string Name = 1;
+}
