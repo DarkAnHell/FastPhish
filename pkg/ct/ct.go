@@ -15,7 +15,7 @@ import (
 // CT is a Certificate Transparency client.
 type CT interface {
 	// Handle makes listens for new domains in CT logs.
-	Handle(chan<- domain.Domain) error
+	Handle(ctx context.Context, start, size int, domains chan<- domain.Domain) error
 	// Stop allows a client to stop listening for new domains.
 	Stop()
 }
