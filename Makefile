@@ -1,4 +1,6 @@
-.PHONY: proto
+.PHONY: proto clean
+
+binary = a.out
 
 proto:
 	@echo "Building .proto files..."
@@ -6,3 +8,9 @@ proto:
 
 clean:
 	@rm -f proto/*/*.pb.go
+	@rm $(binary)
+
+build:
+	@go build ./... $(binary)
+
+all: clean proto build
