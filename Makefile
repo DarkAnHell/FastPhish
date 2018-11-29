@@ -1,12 +1,13 @@
 SHELL := /bin/bash
 
-.PHONY: proto clean all build api run
+.PHONY: proto clean all build api run test
 
 binary = a.out
 apifiles = $(shell ls api)
 cmd_path = cmd
 binaries = $(shell ls $(cmd_path))
 bin_path = bin
+pkg_path = pkg
 
 all: clean api build
 
@@ -23,3 +24,5 @@ build:
 	@echo "Building binaries"
 	$(shell for b in $(binaries); do go build -o $(bin_path)/$$b ./$(cmd_path)/$$b; chmod +x ./$(cmd_path)/$$b; done)
 
+test: all
+	go test ./...

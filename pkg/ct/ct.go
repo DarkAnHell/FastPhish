@@ -1,15 +1,15 @@
- package ct
+package ct
 
 import (
 	"context"
 	"log"
 	"net/http"
 
-	"github.com/darkanhell/Fastphish/api/domain"
-	"github.com/pkg/errors"
+	"github.com/DarkAnHell/FastPhish/api/domain"
 	ct "github.com/google/certificate-transparency-go"
 	"github.com/google/certificate-transparency-go/client"
 	"github.com/google/certificate-transparency-go/jsonclient"
+	"github.com/pkg/errors"
 )
 
 // CT is a Certificate Transparency client.
@@ -88,7 +88,7 @@ func New(ctlog string, opts ...Option) (*Client, error) {
 
 	done := make(chan struct{})
 	return &Client{
-		lc: lc,
+		lc:   lc,
 		done: done,
 	}, nil
 }
