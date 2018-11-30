@@ -26,6 +26,9 @@ We only support the latest stable **Go** version (Go **1.11.2** as of now).
 
 You need to have installed `protoc` (`libprotoc 3.6.1`), the Protocol Buffers Compiler and support for gRPC. In order to install them, please follow the official guide [here](https://google.github.io/proto-lens/installing-protoc.html) for `protoc` and make sure you `go get` the needed gRPC packages listed in the official [guide](https://grpc.io/docs/quickstart/go.html).
 
+
+You also need Redis installed, for example following [this](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04) (only step 1 is necessary)
+
 This project should work on any latest Linux or macOS systems, but note that it has only been actually tested under the following operating systems:
 
 - Linux 4.15 (Ubuntu 18.04.1 LTS)
