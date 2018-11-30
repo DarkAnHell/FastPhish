@@ -22,7 +22,9 @@ The following modules have been already included:
 
 ### Dependencies
 
-We only support the latest stable **Go** version (Go **1.11.2** as of now). You need to have installed `protoc` (`libprotoc 3.6.1`), the Protocol Buffers Compiler and support for gRPC.
+We only support the latest stable **Go** version (Go **1.11.2** as of now).
+
+You need to have installed `protoc` (`libprotoc 3.6.1`), the Protocol Buffers Compiler and support for gRPC. In order to install them, please follow the official guide [here](https://google.github.io/proto-lens/installing-protoc.html) for `protoc` and make sure you `go get` the needed gRPC packages listed in the official [guide](https://grpc.io/docs/quickstart/go.html).
 
 This project should work on any latest Linux or macOS systems, but note that it has only been actually tested under the following operating systems:
 
@@ -31,22 +33,28 @@ This project should work on any latest Linux or macOS systems, but note that it 
 
 There is no reason why it shouldn't work on Windows, but we haven't tested it.
 
+
 ---
 
 ### Build steps
 
-After installing the dependencies, in order to build and run our project you  have to download it and build the binaries. To do that you just have to run (outside of your `$GOPATH`) the following shell commands:
+After installing the dependencies, in order to build and run our project you have to download it and build the binaries. To do that you just have to run (outside of your `$GOPATH`) the following shell commands:
 
 ```sh
 export GO11MODULE=on
+# make sure you have the most recent version of proto and protoc-gen-go
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
 git clone --single-branch -b master https://github.com/DarkAnHell/FastPhish
 cd FastPhish
+make api
 go mod init github.com/DarkAnHell/FastPhish
-go build ./...
+make build
 # for example, run the whoisds data collector.
 bin/whoisds
 # or check the results for the levenshtein analyzer
 bin/analyzer
+# just in case you want to delete the binaries
+make clean
 ```
 
 Note that the binaries provided are only there as a quick test, and will later on be the full modules
