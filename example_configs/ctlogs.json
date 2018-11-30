@@ -1,0 +1,14 @@
+{
+	"start": 0,
+	"size": 1000,
+	"logs": [
+		"https://ct.googleapis.com/rocketeer/",
+		"https://ct.googleapis.com/pilot/",
+		"https://ct.googleapis.com/logs/argon2018/",
+		"https://ct.googleapis.com/icarus/",
+		"https://ct.googleapis.com/skydiver/",
+		"https://ct.cloudflare.com/logs/nimbus2019/",
+		"https://ct.cloudflare.com/logs/nimbus2020/"
+	],
+	"concurrency": 7
+}

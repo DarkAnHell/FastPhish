@@ -1,6 +1,7 @@
 package ct
 
 import (
+	"sync"
 	"context"
 	"log"
 	"net/http"
@@ -15,83 +16,90 @@ import (
 // CT is a Certificate Transparency client.
 type CT interface {
 	// Handle makes listens for new domains in CT logs.
-	Handle(ctx context.Context, start, size int, domains chan<- api.Domain) error
-	// Stop allows a client to stop listening for new domains.
-	Stop()
+	Handle(ctx context.Context, domains chan<- api.Domain) error
 }
 
 // Client is a generic CT Logs consumer.
 type Client struct {
-	lc *client.LogClient
-	// done channel allows stopping the client.
-	done chan struct{}
+	// cfg is the configuration of the CT Client.
+	cfg *Config
+	// clients stores each log URL with its client.
+	// TODO: allow each client to set its start and size values.
+	clients map[string]*client.LogClient
 }
 
 // Handle handles new domain names received from CT Logs.
-func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- api.Domain) error {
-	if start < 0 {
-		return errors.New("start value must be higher or equal to 0")
-	}
-	if size <= 0 {
-		return errors.New("size must be higher or equal to 0")
-	}
+func (c *Client) Handle(ctx context.Context, domains chan<- api.Domain) error {
+	errs := make(chan error)
+	var wg sync.WaitGroup
 
-	for {
-		select {
-		case <-c.done:
-			return nil
-		default:
-		}
+	for lurl, cli := range c.clients {
+		wg.Add(1)
+		go func(lurl string, cli *client.LogClient) {
+			defer func() {
+				wg.Done()
+			}()
 
-		re, err := c.lc.GetRawEntries(ctx, int64(start), int64(start+size))
-		if err != nil {
-			return errors.Wrap(err, "could not get raw entry")
-		}
-
-		var index int
-		for _, entry := range re.Entries {
-			le, err := ct.LogEntryFromLeaf(int64(index), &entry)
+			re, err := cli.GetRawEntries(ctx, int64(c.cfg.Start), int64(c.cfg.Start+c.cfg.Size))
 			if err != nil {
-				// TODO: switch to a real logger.
-				log.Printf("could not convert LeafEntry to LogEntry: %v", err)
-				continue
+				errs <- errors.Wrap(err, "could not get raw entry")
+				return
 			}
 
-			if le.X509Cert == nil {
-				continue
+			var index int
+			for _, entry := range re.Entries {
+				le, err := ct.LogEntryFromLeaf(int64(c.cfg.Start+index), &entry)
+				if err != nil {
+					// TODO: switch to a real logger.
+					log.Printf("could not convert LeafEntry to LogEntry: %v", err)
+					continue
+				}
+				if le.X509Cert == nil {
+					continue
+				}
+				for _, v := range le.X509Cert.DNSNames {
+					domains <- api.Domain{Name: v}
+				}
+				index++
 			}
-			for _, v := range le.X509Cert.DNSNames {
-				domains <- api.Domain{Name: v}
-			}
-
-			index++
-		}
+		}(lurl, cli)
 	}
-}
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
 
-// Stop finishes the client.
-func (c *Client) Stop() {
-	close(c.done)
+	select {
+	case err := <-errs:
+		return err
+	case <-done:
+		return nil
+	}
 }
 
 // Option type allows customizing HTTP client.
 type Option func(*http.Client)
 
 // New sets up a CT Logs client.
-func New(ctlog string, opts ...Option) (*Client, error) {
+func New(cfg *Config, opts ...Option) (*Client, error) {
 	hc := &http.DefaultClient
 	for _, opt := range opts {
 		opt(*hc)
 	}
 
-	lc, err := client.New(ctlog, *hc, jsonclient.Options{})
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create client")
+	cli := &Client{
+		cfg: cfg,
+		clients: make(map[string]*client.LogClient, len(cfg.Logs)),
 	}
 
-	done := make(chan struct{})
-	return &Client{
-		lc:   lc,
-		done: done,
-	}, nil
+	for _, lurl := range cfg.Logs {
+		lc, err := client.New(lurl, *hc, jsonclient.Options{})
+		if err != nil {
+			return nil, errors.Wrap(err, "could not create client")
+		}
+		cli.clients[lurl] = lc
+	}
+
+	return cli, nil
 }
