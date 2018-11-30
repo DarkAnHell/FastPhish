@@ -23,3 +23,6 @@ build:
 	@echo "Building binaries"
 	$(shell for b in $(binaries); do go build -o $(bin_path)/$$b ./$(cmd_path)/$$b; chmod +x ./$(cmd_path)/$$b; done)
 
+
+test: all
+	go test -v ./...

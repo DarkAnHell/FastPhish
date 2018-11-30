@@ -1,6 +1,10 @@
 package levenshtein
 
-import "github.com/DarkAnHell/FastPhish/pkg/analyzer"
+import (
+	"math"
+
+	"github.com/DarkAnHell/FastPhish/pkg/analyzer"
+)
 
 // Levenshtein is just a placeholder to create this "class"
 type Levenshtein struct {
@@ -21,7 +25,16 @@ func min(a, b, c int) int {
 
 // Translates the score given by the algorithm into a usable score
 // (see) Analyze's docs)
-func translateScore()
+func translateScore(score int, threshold int) int {
+	// The same domain
+	if score == 0 {
+		return 0
+	}
+	// Closer to the domain (less score in Levenshtein), more likely to be phishing
+	return 100 - int(math.Min(
+		float64((score*100)/threshold),
+		100.0))
+}
 
 // Process is the implementation of analyzer's Process
 func (l Levenshtein) Process(
@@ -94,7 +107,9 @@ func (l Levenshtein) internalProcess(
 			}
 
 			// Return score
-			out <- analyzer.DomainScore{Domain: domain, Score: mat[lenInput-1][lenDomain-1]}
+
+			// TODO: Pass threshold as part of config, not hardcoded
+			out <- analyzer.DomainScore{Domain: domain, Score: translateScore(mat[lenInput-1][lenDomain-1], 10)}
 
 		case <-stop:
 			// stop
