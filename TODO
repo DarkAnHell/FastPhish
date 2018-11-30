@@ -1,0 +1,8 @@
+- Analysis module selection logic
+- Database integration
+- Cache for recent queries
+- gRPC communication between the different modules
+- User facing API
+- Configuration for each module (maybe)
+- DNS service (maybe)
+- Add more collectors, ingestors and analyzers (maybe)
