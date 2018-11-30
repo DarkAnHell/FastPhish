@@ -2,12 +2,13 @@ package datasource
 
 import (
 	"context"
-	"io"
 	"net/http"
+
+	"github.com/DarkAnHell/FastPhish/api/domain"
 )
 
 // Datasource interface represents any source from which domains are taken.
 type Datasource interface {
 	// Request receives the data from the datasource.
-	Request(context.Context, *http.Client) (io.Reader, error)
+	Request(context.Context, *http.Client, chan<- domain.Domain) error
 }
