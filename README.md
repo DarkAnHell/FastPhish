@@ -6,6 +6,7 @@ The following modules have been already included:
 
 - Analysis
   - Levenshtein distance
+- Ingestion Engine
 - Data sources
   - Certificate Transparency Logs
   - Passive sources
@@ -20,7 +21,6 @@ The following modules have been already included:
 ### Work in Progress tasks
 
 - Analysis module selection logic
-- Data sources ingestion engine
 - Database integration
 - Cache for recent queries
 - gRPC communication between the different modules
@@ -35,7 +35,7 @@ The following modules have been already included:
 
 ### Dependencies
 
-We only support the latest stable **Go** version (Go **1.11.2** as of now). You need to have installed **`protoc`** (**libprotoc 3.6.1**), the Protocol Buffers Compiler and support for gRPC.
+We only support the latest stable **Go** version (Go **1.11.2** as of now). You need to have installed `protoc` (`libprotoc 3.6.1`), the Protocol Buffers Compiler and support for gRPC.
 
 This project should work on any latest Linux or macOS systems, but note that it has only been actually tested under the following operating systems:
 
