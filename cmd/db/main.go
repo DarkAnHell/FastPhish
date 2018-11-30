@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	// Load config
 	if len(os.Args) < 2 {
 		log.Fatalf("missing JSON config file path")
 	}
+
 	f, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatalf("could not open config file %s: %v", os.Args[1], err)

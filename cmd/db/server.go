@@ -34,7 +34,6 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 		if err != nil {
 			return fmt.Errorf("could not get score from DB: %v", err)
 		}
-
 		resp := &api.SlimQueryResult{
 			Domain: &api.DomainScore{
 				Name:  req.GetName(),
@@ -69,8 +68,7 @@ func (s server) Store(ds api.DB_StoreServer) error {
 			}
 		}
 
-		err = s.DB.Store(*req)
-		if err != nil {
+		if err := s.DB.Store(*req); err != nil {
 			return fmt.Errorf("could not store in DB: %v", err)
 		}
 
