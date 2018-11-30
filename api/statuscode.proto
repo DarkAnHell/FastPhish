@@ -13,6 +13,7 @@ enum StatusCode {
     // you did not implement a custom OK code for your case.
     GENERIC_OK = 100;
     STORE_S_OK = 101;
+    GET_SCORE_S_OK = 102;
 
 
     // 2XX - Client Errors

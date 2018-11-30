@@ -41,7 +41,7 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 			},
 			Status: &api.Result{
 				Message: "OK",
-				Status:  api.StatusCode_GENERIC_OK,
+				Status:  api.StatusCode_GET_SCORE_S_OK,
 			},
 		}
 		if err := srv.Send(resp); err != nil {
