@@ -12,12 +12,16 @@ enum StatusCode {
     // Should only be used if none other OK message is valid, and for some reason
     // you did not implement a custom OK code for your case.
     GENERIC_OK = 100;
+    STORE_S_OK = 101;
+
 
     // 2XX - Client Errors
 
     // Should only be used if none other Client Error message is valid, and for some reason
     // you did not implement a custom Client Error code for your case.
     GENERIC_C_ERROR = 200;
+    // Server wasn't able to read client's stream.
+    READ_C_ERR = 211;
 
     // 3XX - Server Errors
 
