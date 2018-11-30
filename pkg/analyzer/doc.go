@@ -5,5 +5,5 @@
 // and output a confidence score of how malicious the domain is.
 //
 // Any analyzer MUST follow the configuration specifics' of operation,
-// which will be passed as input
+// which will be passed as input.
 package analyzer
