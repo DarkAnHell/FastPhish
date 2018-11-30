@@ -27,7 +27,6 @@ const (
 // Request downloads the data from whoisds.com and extracts it.
 func (w Whoisds) Request(ctx context.Context, cli *http.Client, domains chan<- domain.Domain) error {
 	fname := fmt.Sprintf("%v-%d-%v.zip", w.date.Year(), w.date.Month(), w.date.Day())
-	fmt.Printf("file name is: %s\n", fname)
 	encoded := base64.StdEncoding.EncodeToString([]byte(fname))
 	fullURL := fmt.Sprintf("%s%s%s", baseURL, encoded, baseSuffix)
 
