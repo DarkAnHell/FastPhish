@@ -1,3 +1,5 @@
+CyberCamp 2018 Hackathon entry for team Phish 'n Chips.
+
 ## FastPhish
 
 FastPhish aims to be a fast and reliable phishing detection framework. It's based in Go.
@@ -13,21 +15,6 @@ The following modules have been already included:
     - Whoisds
 
 **Only master branch is stable**. Please, if you use other branches, do it at your own risk.
-
-
-
----
-
-### Work in Progress tasks
-
-- Analysis module selection logic
-- Database integration
-- Cache for recent queries
-- gRPC communication between the different modules
-- User facing API
-- Configuration for each module (maybe)
-- DNS service (maybe)
-- Add more collectors, ingestors and analyzers (maybe)
 
 
 
