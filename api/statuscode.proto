@@ -26,3 +26,11 @@ enum StatusCode {
 
     // 9XX - Information
 }
+
+// A generic result message which should accompany
+// any response. Has a status code for quick comparison
+// and a message for more in-depth data of what happened
+message Result {
+    StatusCode status = 1;
+    string message = 2;
+}

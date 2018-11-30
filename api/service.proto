@@ -2,20 +2,41 @@ syntax = "proto3";
 package api;
 
 import "domain.proto";
+import "statuscode.proto";
 
 // considered the entry point, as this is the front facing API
 // for users or other software
 service FastPhish {
-    // QueryDomain
-   rpc QueryDomain(Domain) returns (QueryResult) {}
+    // Query domain against any and all avaliable phishing links,
+    // such as those in the DB, and analyze it against those specific domains
+    // that were configured in the analyzer
+    rpc QueryDomain(Domain) returns (QueryResult) {}
 
-    // Query with a batch of domains
+    // Same behaviour as QueryDomain, but takes multiple domains at once
     rpc QueryDomains(stream Domain) returns (stream QueryResult) {}
+
+    // TODO: Check against an array of domains, force re-analysis, etc
 
 }
 
 message QueryResult {
+    // Status code, error message (if any)
+    Result status = 1;
 
-    // The message to be sent.
-    string message = 2;
-  }
+    // The domain this answer is refering to
+    Domain domain = 2;
+
+    // Score for said domain.
+    // This is a number ranging from 0 to 100,
+    // where 0 means the system is 100% sure the domain is NOT phishing
+    // and 100 means the system is 100% sure the daomin IS phishing.
+    // Everything else in between is just a range of confidence.
+    uint32 score = 3;
+
+    // System guess as to whether or not this domain is safe, based on the score.
+    // This will be more or less sinsible depending on configuration.
+    // You can either use this or use your own metric by reading the score and
+    // determining it yourself
+    bool safe = 4;
+}
+
