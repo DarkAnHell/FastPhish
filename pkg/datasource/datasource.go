@@ -10,6 +10,4 @@ import (
 type Datasource interface {
 	// Request receives the data from the datasource.
 	Request(context.Context, *http.Client) (io.Reader, error)
-	// Close closes a datasource when it's not needed anymore.
-	Close(io.Closer)
 }
