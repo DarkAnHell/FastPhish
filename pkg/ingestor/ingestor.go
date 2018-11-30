@@ -5,14 +5,14 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/DarkAnHell/FastPhish/api/domain"
+	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/datasource"
 )
 
 // Ingestor collects data from the given source.
 type Ingestor interface {
 	// Ingest collects domains from datasources and reports them.
-	Ingest(context.Context, chan<- domain.Domain, ...datasource.Datasource) error
+	Ingest(context.Context, chan<- api.Domain, ...datasource.Datasource) error
 }
 
 // Default ingestor calls all datasources (one goroutine for each source)
@@ -22,7 +22,7 @@ type Ingestor interface {
 type Default struct {}
 
 // Ingest collects domains from all datasources and reports them. It might report duplicate domains.
-func (d Default) Ingest(ctx context.Context, out chan<- domain.Domain, sources ...datasource.Datasource) error {
+func (d Default) Ingest(ctx context.Context, out chan<- api.Domain, sources ...datasource.Datasource) error {
 	errs := make(chan error)
 	done := make(chan struct{})
 
