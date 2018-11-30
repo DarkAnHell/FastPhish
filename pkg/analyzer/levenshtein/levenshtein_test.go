@@ -7,8 +7,13 @@ import (
 )
 
 func auxiliarTestScores(t *testing.T, scores []int, thresholds []int, expected []int) {
+
+	var l Levenshtein
+	l.cost = 1
+
 	for i := range scores {
-		got := translateScore(scores[i], thresholds[i])
+		l.threshold = thresholds[i]
+		got := l.translateScore(scores[i])
 		if got != expected[i] {
 			t.Errorf("Translations incorrect, got: %d, want: %d. (for %d - %d )", got, expected[i], scores[i], thresholds[i])
 		}
@@ -17,30 +22,33 @@ func auxiliarTestScores(t *testing.T, scores []int, thresholds []int, expected [
 
 func auxiliarTestDomains(t *testing.T, domains []string, against []string, expected []int) {
 	var l Levenshtein
+	l.threshold = 10
+	l.cost = 1
 
-	stop := make(chan bool, len(domains))
-	out := make(chan analyzer.DomainScore, len(domains))
-	err := make(chan analyzer.DomainError, len(domains))
+	for i, domain := range domains {
+		t.Run(domain, func(t *testing.T) {
+			stop := make(chan bool)
+			out := make(chan analyzer.DomainScore)
+			err := make(chan analyzer.DomainError)
 
-	for i := range domains {
-		l.internalProcess(domains[i], []string{against[i]}, stop, out, err)
-	}
+			l.internalProcess(domains[i], []string{against[i]}, stop, out, err)
+			for y := 0; y < len(domains); y++ {
+				select {
+				case res := <-out:
+					for i, d := range against {
 
-	for y := 0; y < len(domains); y++ {
-		select {
-		case res := <-out:
-			for i, d := range against {
-
-				if d == res.Domain {
-					if expected[i] != res.Score {
-						t.Errorf("Error in domain checking -> Got: %d for %s against %s. Expected %d", res.Score, d, against[i], expected[i])
+						if d == res.Domain {
+							if expected[i] != res.Score {
+								t.Errorf("Error in domain checking -> Got: %d for %s against %s. Expected %d", res.Score, d, against[i], expected[i])
+							}
+							break
+						}
 					}
-					break
+				case e := <-err:
+					t.Errorf("Unexpected error %v", e)
 				}
 			}
-		case e := <-err:
-			t.Errorf("Unexpected error %s", e)
-		}
+		})
 	}
 }
 
