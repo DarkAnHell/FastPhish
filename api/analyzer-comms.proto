@@ -1,0 +1,17 @@
+syntax = "proto3";
+package api;
+
+import "cache-comms.proto";
+import "domain.proto";
+
+
+
+// Analyzer entry point
+// Meant only for internal use (not user-facing)
+service Analyzer {
+    // Get stored score for this domains
+    rpc Analyze(stream Domain) returns (stream SlimQueryResult) {}
+
+    // TODO: Check against an array of domains
+
+}

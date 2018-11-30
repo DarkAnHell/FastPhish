@@ -3,30 +3,23 @@ package api;
 
 import "api-comms.proto";
 import "domain.proto";
+import "statuscode.proto";
 
 // Cache entry point for communication.
 // Expects calls either from API or recollection module
 service Cache {
-    // Query domain against any and all avaliable phishing links,
+
+    // Query domains against any and all avaliable phishing links,
     // such as those in the DB, and analyze it against those specific domains
     // that were configured in the analyzer
     //
     // Note that this will always be prioritized, so this should be callled on a users'
     // behalf, never as an automated process
-    rpc FastQueryDomain(Domain) returns (QueryResult) {}
+    rpc FastQuery(stream Domain) returns (stream QueryResult) {}
 
-    // Same behaviour as FastQueryDomain, but takes multiple domains at once
-    rpc FastQueryDomains(stream Domain) returns (stream QueryResult) {}
-
-    // Same behaviour as FastQueryDomain, but without priority.
+    // Same behaviour as FastQuery, but without priority.
     // Intended for the recollector
-    rpc SlowQueryDomain(Domain) returns (SlimQueryResult) {}
-
-    // Same behaviour as FastQueryDomains, but without priority.
-    // Intended for the recollector
-    rpc SlowQueryDomains(stream Domain) returns (stream SlimQueryResult) {
-
-    }
+    rpc SlowQuery(stream Domain) returns (stream SlimQueryResult) {}
     // TODO: Check against an array of domains, force re-analysis, etc
 
 }
@@ -37,6 +30,5 @@ message SlimQueryResult {
     // Status code, error message (if any)
     Result status = 1;
 
-    // The domain this answer is refering to
-    Domain domain = 2;
+    DomainScore domain = 2;
 }
