@@ -57,6 +57,9 @@ func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- dom
 				continue
 			}
 
+			if le.X509Cert == nil {
+				continue
+			}
 			for _, v := range le.X509Cert.DNSNames {
 				domains <- domain.Domain{Name: v}
 			}
