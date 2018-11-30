@@ -1,8 +1,8 @@
 package ingestor
 
 import (
-	"github.com/darkanhell/Fastphish/api/domain"
-	"github.com/darkanhell/Fastphish/pkg/datasource"
+	"github.com/DarkAnHell/FastPhish/api/domain"
+	"github.com/DarkAnHell/FastPhish/pkg/datasource"
 )
 
 // Ingestor collects data from the given source.
