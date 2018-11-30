@@ -59,6 +59,9 @@ func (l Levenshtein) internalProcess(
 	err chan analyzer.DomainError) {
 
 	// NOTE: Use defer to any cleanup code
+	defer close(stop)
+	defer close(out)
+	defer close(err)
 
 	// Create vars
 	var i, j, cost int

@@ -19,13 +19,12 @@ func main() {
 	err := make(chan analyzer.DomainError)
 
 	a.Process(
-		"twitter.com", []string{"twistter.com", "twitter.com", "google.com"},
+		"twitter.com", []string{"twistter.com", "twitter.com", "google.com", "twi†ter.com", "facebook.es", "random.link.valid"},
 		stop,
 		out,
 		err)
 
 	for v := range out {
-		fmt.Println(v)
+		fmt.Printf("For domain %s, levenshtein is %d%% sure it is phishing for domain twitter.com\n", v.Domain, v.Score)
 	}
-
 }
