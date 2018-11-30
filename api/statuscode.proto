@@ -12,7 +12,9 @@ enum StatusCode {
     // Should only be used if none other OK message is valid, and for some reason
     // you did not implement a custom OK code for your case.
     GENERIC_OK = 100;
+    // Stored on database correctly
     STORE_S_OK = 101;
+    // Got score for domain correctly
     GET_SCORE_S_OK = 102;
 
 
