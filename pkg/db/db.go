@@ -8,7 +8,7 @@ import (
 
 // DB interface represents any db
 type DB interface {
-	Store(api.Domain) error
+	Store(api.DomainScore) error
 
 	GetScore(domain string) (score int, err error)
 
