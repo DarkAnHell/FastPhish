@@ -1,0 +1,6 @@
+{
+    "Listen": "localhost:6379",
+    "Password": "",
+    "DB": 0,
+    "Expiration": 0
+}
