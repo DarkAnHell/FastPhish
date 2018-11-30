@@ -108,8 +108,9 @@ func (l Levenshtein) internalProcess(
 			}
 
 			// Return score
+
 			// TODO: Pass threshold as part of config, not hardcoded
-			out <- analyzer.DomainScore{Domain: domain, Score: translateScore(mat[lenInput-1][lenDomain-1], 5)}
+			out <- analyzer.DomainScore{Domain: domain, Score: translateScore(mat[lenInput-1][lenDomain-1], 10)}
 
 		case <-stop:
 			// stop
