@@ -34,7 +34,7 @@ message QueryResult {
     uint32 score = 3;
 
     // System guess as to whether or not this domain is safe, based on the score.
-    // This will be more or less sinsible depending on configuration.
+    // This will be more or less sensible depending on configuration.
     // You can either use this or use your own metric by reading the score and
     // determining it yourself
     bool safe = 4;
