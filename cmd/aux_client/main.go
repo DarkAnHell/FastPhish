@@ -22,7 +22,25 @@ func main() {
 		log.Fatalf("could not create DomainsScoreClient: %v", err)
 	}
 
+	dscliStore, err := client.Store(context.Background())
+	if err != nil {
+		log.Fatalf("could not create DomainsScoreClient: %v", err)
+	}
+
 	domains := []string{"twitter.com", "fb.com", "hackyhacky.es"}
+	for _, v := range domains {
+		log.Println("Sending msg from client...")
+		domain := &api.DomainScore{
+			Name:  v,
+			Score: uint32(5),
+		}
+
+		if err := dscliStore.Send(domain); err != nil {
+			log.Printf("could not send request: %v\n", err)
+			return
+		}
+	}
+
 	for _, v := range domains {
 		log.Println("Sending msg from client...")
 		domain := &api.Domain{

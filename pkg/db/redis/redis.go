@@ -18,9 +18,8 @@ type Redis struct {
 	expirationTime time.Duration
 }
 
-func (R *Redis) Load(r io.Reader) error {
-
-	b, err := ioutil.ReadAll(r)
+func (r *Redis) Load(source io.Reader) error {
+	b, err := ioutil.ReadAll(source)
 	if err != nil {
 		return err
 	}
@@ -30,26 +29,23 @@ func (R *Redis) Load(r io.Reader) error {
 		return err
 	}
 
-	R.expirationTime = cfg.Expiration
-
-	R.client = redis.NewClient(&redis.Options{
+	r.expirationTime = cfg.Expiration
+	r.client = redis.NewClient(&redis.Options{
 		Addr:     cfg.Listen,
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})
 
-	_, err = R.client.Ping().Result()
+	_, err = r.client.Ping().Result()
 
 	return err
 }
 
-func (r *Redis) Store(d api.DomainScore) error {
-
+func (r Redis) Store(d api.DomainScore) error {
 	return r.client.Set(d.Name, d.Score, r.expirationTime).Err()
 }
 
-func (r *Redis) GetScore(domain string) (score int, err error) {
-
+func (r Redis) GetScore(domain string) (score int, err error) {
 	val, err := r.client.Get(domain).Result()
 	if err != nil {
 		return -1, err
