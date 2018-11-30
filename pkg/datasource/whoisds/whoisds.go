@@ -1,17 +1,17 @@
 package whoisds
 
 import (
-	"bufio"
 	"archive/zip"
+	"bufio"
 	"bytes"
-	"io/ioutil"
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
-	"github.com/DarkAnHell/FastPhish/api/domain"
+	"github.com/DarkAnHell/FastPhish/api"
 )
 
 // Whoisds uses whoisds.com datasets as data source.
@@ -20,12 +20,12 @@ type Whoisds struct {
 }
 
 const (
-	baseURL = "https://whoisds.com//whois-database/newly-registered-domains/"
+	baseURL    = "https://whoisds.com//whois-database/newly-registered-domains/"
 	baseSuffix = "/nrd"
 )
 
 // Request downloads the data from whoisds.com and extracts it.
-func (w Whoisds) Request(ctx context.Context, cli *http.Client, domains chan<- domain.Domain) error {
+func (w Whoisds) Request(ctx context.Context, cli *http.Client, domains chan<- api.Domain) error {
 	fname := fmt.Sprintf("%v-%d-%v.zip", w.date.Year(), w.date.Month(), w.date.Day())
 	encoded := base64.StdEncoding.EncodeToString([]byte(fname))
 	fullURL := fmt.Sprintf("%s%s%s", baseURL, encoded, baseSuffix)
@@ -61,7 +61,7 @@ func (w Whoisds) Request(ctx context.Context, cli *http.Client, domains chan<- d
 
 		sc := bufio.NewScanner(f)
 		for sc.Scan() {
-			domains <- domain.Domain{Name: sc.Text()}
+			domains <- api.Domain{Name: sc.Text()}
 		}
 		if err := sc.Err(); err != nil {
 			return fmt.Errorf("could not scan: %v", err)

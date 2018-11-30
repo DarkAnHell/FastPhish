@@ -1,0 +1,21 @@
+syntax = "proto3";
+package api;
+
+import "domain.proto";
+
+// considered the entry point, as this is the front facing API
+// for users or other software
+service FastPhish {
+    // QueryDomain
+   rpc QueryDomain(Domain) returns (QueryResult) {}
+
+    // Query with a batch of domains
+    rpc QueryDomains(stream Domain) returns (stream QueryResult) {}
+
+}
+
+message QueryResult {
+
+    // The message to be sent.
+    string message = 2;
+  }

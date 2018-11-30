@@ -3,6 +3,6 @@
 
 
 # Api auto-generated
-api/*/*.pb.go
+api/*.pb.go
 
 bin

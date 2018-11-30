@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/DarkAnHell/FastPhish/api/domain"
 	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/datasource/whoisds"
 )
 
@@ -14,7 +15,7 @@ func main() {
 	date := time.Now()
 	date = date.AddDate(0, 0, -3)
 	ws := whoisds.New(date)
-	domains := make(chan domain.Domain)
+	domains := make(chan api.Domain)
 	done := make(chan struct{})
 	go func() {
 		for {

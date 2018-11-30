@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/DarkAnHell/FastPhish/api/domain"
+	"github.com/DarkAnHell/FastPhish/api"
 	ct "github.com/google/certificate-transparency-go"
 	"github.com/google/certificate-transparency-go/client"
 	"github.com/google/certificate-transparency-go/jsonclient"
@@ -15,7 +15,7 @@ import (
 // CT is a Certificate Transparency client.
 type CT interface {
 	// Handle makes listens for new domains in CT logs.
-	Handle(ctx context.Context, start, size int, domains chan<- domain.Domain) error
+	Handle(ctx context.Context, start, size int, domains chan<- api.Domain) error
 	// Stop allows a client to stop listening for new domains.
 	Stop()
 }
@@ -28,7 +28,7 @@ type Client struct {
 }
 
 // Handle handles new domain names received from CT Logs.
-func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- domain.Domain) error {
+func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- api.Domain) error {
 	if start < 0 {
 		return errors.New("start value must be higher or equal to 0")
 	}
@@ -61,7 +61,7 @@ func (c *Client) Handle(ctx context.Context, start, size int, domains chan<- dom
 				continue
 			}
 			for _, v := range le.X509Cert.DNSNames {
-				domains <- domain.Domain{Name: v}
+				domains <- api.Domain{Name: v}
 			}
 
 			index++

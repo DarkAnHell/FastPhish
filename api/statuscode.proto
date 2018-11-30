@@ -1,5 +1,5 @@
 syntax = "proto3";
-package statuscode;
+package api;
 
 // Status codes for any type of response, by both server or client.
 enum StatusCode {

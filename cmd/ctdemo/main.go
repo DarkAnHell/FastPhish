@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/DarkAnHell/FastPhish/api/domain"
+	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/ct"
 )
 
@@ -26,7 +26,7 @@ func main() {
 				log.Fatalf("could not create CT client: %v\n", err)
 			}
 
-			domains := make(chan domain.Domain)
+			domains := make(chan api.Domain)
 			go func() {
 				err := ct.Handle(context.Background(), 0, 5000, domains)
 				if err != nil {
@@ -41,7 +41,7 @@ func main() {
 					select {
 					case d := <-domains:
 						total++
-						if total % 1000 == 0 {
+						if total%1000 == 0 {
 							log.Printf("[%s] domain number %d is %s\n", url, total, d.Name)
 						}
 					}
