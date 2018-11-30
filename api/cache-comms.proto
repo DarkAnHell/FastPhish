@@ -1,0 +1,32 @@
+syntax = "proto3";
+package api;
+
+import "api-comms.proto";
+import "domain.proto";
+
+// Cache entry point for communication.
+// Expects calls either from API or recollection module
+service Cache {
+    // Query domain against any and all avaliable phishing links,
+    // such as those in the DB, and analyze it against those specific domains
+    // that were configured in the analyzer
+    //
+    // Note that this will always be prioritized, so this should be callled on a users'
+    // behalf, never as an automated process
+    rpc FastQueryDomain(Domain) returns (QueryResult) {}
+
+    // Same behaviour as FastQueryDomain, but takes multiple domains at once
+    rpc FastQueryDomains(stream Domain) returns (stream QueryResult) {}
+
+    // Same behaviour as FastQueryDomain, but without priority.
+    // Intended for the recollector
+    rpc SlowQueryDomain(Domain) returns (QueryResult) {}
+
+    // Same behaviour as FastQueryDomains, but without priority.
+    // Intended for the recollector
+    rpc SlowQueryDomains(stream Domain) returns (stream QueryResult) {
+
+    }
+    // TODO: Check against an array of domains, force re-analysis, etc
+
+}

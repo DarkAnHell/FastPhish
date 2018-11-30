@@ -6,7 +6,7 @@ import "statuscode.proto";
 
 // considered the entry point, as this is the front facing API
 // for users or other software
-service FastPhish {
+service API {
     // Query domain against any and all avaliable phishing links,
     // such as those in the DB, and analyze it against those specific domains
     // that were configured in the analyzer
