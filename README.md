@@ -59,8 +59,9 @@ export GO11MODULE=on
 go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
 git clone --single-branch -b master https://github.com/DarkAnHell/FastPhish
 cd FastPhish
+make api
 go mod init github.com/DarkAnHell/FastPhish
-make
+make build
 # for example, run the whoisds data collector.
 bin/whoisds
 # or check the results for the levenshtein analyzer
