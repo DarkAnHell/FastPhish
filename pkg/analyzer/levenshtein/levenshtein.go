@@ -1,6 +1,9 @@
 package levenshtein
 
 import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
 	"math"
 
 	"github.com/DarkAnHell/FastPhish/pkg/analyzer"
@@ -8,6 +11,11 @@ import (
 
 // Levenshtein is just a placeholder to create this "class"
 type Levenshtein struct {
+	// Threshold to use for the activation fuzzy logic
+	threshold int
+
+	// Cost to adjust the significance of a letter changing
+	cost int
 }
 
 func min(a, b, c int) int {
@@ -25,7 +33,7 @@ func min(a, b, c int) int {
 
 // Translates the score given by the algorithm into a usable score
 // (see) Analyze's docs)
-func translateScore(score int, threshold int) int {
+func (l Levenshtein) translateScore(score int) int {
 	// The same domain
 	if score == 0 {
 		return 0
@@ -33,8 +41,26 @@ func translateScore(score int, threshold int) int {
 
 	// Closer to the domain (less score in Levenshtein), more likely to be phishing
 	return 100 - int(math.Min(
-		float64((score*100)/threshold),
+		float64((score*100)/l.threshold),
 		100.0))
+}
+
+// Load reads the configuration and applies changes to the object
+func (l *Levenshtein) Load(r io.Reader) error {
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	var cfg Config
+	if err := json.Unmarshal(b, &cfg); err != nil {
+		return err
+	}
+
+	l.threshold = cfg.Threshold
+	l.cost = cfg.Cost
+
+	return nil
 }
 
 // Process is the implementation of analyzer's Process
@@ -99,7 +125,7 @@ func (l Levenshtein) internalProcess(
 					if input[i-1] == domain[j-1] {
 						cost = 0
 					} else {
-						cost = 1
+						cost = l.cost
 					}
 
 					// Store the minimum between deleting, inserting or subsitute a character
@@ -111,9 +137,7 @@ func (l Levenshtein) internalProcess(
 			}
 
 			// Return score
-
-			// TODO: Pass threshold as part of config, not hardcoded
-			out <- analyzer.DomainScore{Domain: domain, Score: translateScore(mat[lenInput-1][lenDomain-1], 10)}
+			out <- analyzer.DomainScore{Domain: domain, Score: l.translateScore(mat[lenInput-1][lenDomain-1])}
 
 		case <-stop:
 			// stop

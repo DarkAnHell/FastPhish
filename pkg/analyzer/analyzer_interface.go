@@ -1,10 +1,11 @@
 package analyzer
 
+import "io"
+
 // Analyzer defines the interface which must be used by any analyzer.
 type Analyzer interface {
 
 	// TODO: Change string to Domain
-	// TODO: Input config
 
 	// Process should take an input (domain) and use it asynchronously
 	// to derive a score for it.
@@ -28,6 +29,12 @@ type Analyzer interface {
 		stop chan bool,
 		out chan DomainScore,
 		err chan DomainError)
+
+	// Load should change the properties for the object according to the information
+	// passed.
+	//
+	// This is used to load configuration
+	Load(r io.Reader) error
 }
 
 // DomainScore holds a fake "key->value" structure for a domain and it's score
