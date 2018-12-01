@@ -135,7 +135,6 @@ func (s server) QueryDB(domain *api.Domain) (*api.SlimQueryResult, error) {
 	return resp, nil
 }
 
-// Checks if the DB has that already analyzed
 func (s server) Analyze(domain *api.Domain) (*api.SlimQueryResult, error) {
 	var conn *grpc.ClientConn
 

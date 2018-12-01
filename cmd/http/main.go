@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/DarkAnHell/FastPhish/api"
+	"github.com/DarkAnHell/FastPhish/pkg/db"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"github.com/DarkAnHell/FastPhish/pkg/db"
-	"github.com/DarkAnHell/FastPhish/api"
 )
 
 type request struct {
@@ -28,10 +28,10 @@ type response struct {
 var (
 	creds credentials.TransportCredentials
 
-	conn *grpc.ClientConn
+	conn     *grpc.ClientConn
 	analconn *grpc.ClientConn
 
-	dscli api.DB_GetDomainsScoreClient
+	dscli   api.DB_GetDomainsScoreClient
 	aclient api.Analyzer_AnalyzeClient
 )
 
@@ -43,8 +43,8 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 
 	d := json.NewDecoder(req.Body)
 	var r request
-    err := d.Decode(&r)
-    if err != nil {
+	err := d.Decode(&r)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "could not handle request: %v", err)
 		return
@@ -58,7 +58,12 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 	}
 
 	resp, err := dscli.Recv()
-	if err == db.ErrDBNotFound {
+	if err != nil && err != db.ErrDBNotFound {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "could not query db: %v", err)
+		return
+	}
+	if resp != nil && resp.Status.Status != api.StatusCode_DOMAIN_NOT_FOUND_ON_DB {
 		// send to analyze
 		if err := aclient.Send(domain); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -80,7 +85,7 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 		}
 		userResp := &response{
 			Phising: phishing,
-			Score: resp.Domain.Score,
+			Score:   resp.Domain.Score,
 		}
 
 		b, err := json.Marshal(userResp)
@@ -105,7 +110,7 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 	}
 	userResp := &response{
 		Phising: phishing,
-		Score: resp.Domain.Score,
+		Score:   resp.Domain.Score,
 	}
 	b, err := json.Marshal(userResp)
 	if err != nil {
