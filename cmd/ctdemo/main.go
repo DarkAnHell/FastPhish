@@ -41,11 +41,11 @@ func main() {
 	}
 
 	// TODO: config.
-	//analconn, err := grpc.Dial("localhost:1338", grpc.WithInsecure())
-	//if err != nil {
-	//	log.Fatalf("failed to connect to analyzer service: %v", err)
-	//}
-	//defer analconn.Close()
+	analconn, err := grpc.Dial("localhost:1338", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("failed to connect to analyzer service: %v", err)
+	}
+	defer analconn.Close()
 
 	// TODO: config.
 	dbconn, err = grpc.Dial("localhost:50000", grpc.WithTransportCredentials(creds))
@@ -54,11 +54,11 @@ func main() {
 	}
 	defer dbconn.Close()
 
-	//aclient := api.NewAnalyzerClient(analconn)
-	//anal, err := aclient.Analyze(context.Background())
-	//if err != nil {
-	//	log.Fatalf("could not create analyzer: %v", err)
-	//}
+	aclient := api.NewAnalyzerClient(analconn)
+	anal, err := aclient.Analyze(context.Background())
+	if err != nil {
+		log.Fatalf("could not create analyzer: %v", err)
+	}
 
 	dbclient := api.NewDBClient(dbconn)
 	db, err := dbclient.GetDomainsScore(context.Background())
@@ -87,19 +87,17 @@ func main() {
 					continue
 				}
 				log.Printf("is %s domain new? %v", d.Name, ok)
-				/*
-					if err := anal.Send(&d); err != nil {
-						log.Printf("failed to send domain to analyzer: %v", err)
-						return
-					}
+				if err := anal.Send(&d); err != nil {
+					log.Printf("failed to send domain to analyzer: %v", err)
+					return
+				}
 
-					resp, err := anal.Recv()
-					if err != nil {
-						log.Printf("could not read response: %v", err)
-						return
-					}
-					log.Printf("Got response with status %v: %s with score: %v\n", resp.GetStatus().Status, resp.GetDomain().Name, resp.GetDomain().Score)
-				*/
+				resp, err := anal.Recv()
+				if err != nil {
+					log.Printf("could not read response: %v", err)
+					return
+				}
+				log.Printf("Got response with status %v: %s with score: %v\n", resp.GetStatus().Status, resp.GetDomain().Name, resp.GetDomain().Score)
 			}
 		}
 	}()
