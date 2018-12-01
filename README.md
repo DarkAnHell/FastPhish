@@ -53,12 +53,30 @@ make api
 make certs
 go mod init github.com/DarkAnHell/FastPhish
 make build
-# for example, run the whoisds data collector.
-bin/whoisds
-# or check the results for the levenshtein analyzer
-bin/analyzer
-# just in case you want to delete the binaries
-make clean
 ```
 
-Note that the binaries provided are only there as a quick test, and will later on be the full modules
+### Using
+
+Edit or create config files for the binaries (examples avaliable at example_configs) before hand, and make sure to have a redis DB launched
+
+- Launch DB (should always be present):
+```
+bin/db <redis-config.json>
+```
+
+- Launch Analyzer (should always be present):
+```
+bin/analyzer <levenshtein-config.json>
+```
+
+- Launch Certificate Transparency Logs parser:
+```
+bin/ctdemo <ctlogs.json>
+```
+
+- Launch user API:
+```
+bin/api
+```
+
+If you want to use the API connection, you can write your own gRPC client to connect to it. You have an example at **aux_client**, which you can also launch to see a prepared execution
