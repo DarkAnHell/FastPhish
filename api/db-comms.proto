@@ -1,0 +1,17 @@
+syntax = "proto3";
+package api;
+
+import "cache-comms.proto";
+import "domain.proto";
+
+
+
+// DB entry point
+// Meant only for internal use (not user-facing)
+service DB {
+    // Get stored score for this domains
+    rpc GetDomainsScore(stream Domain) returns (stream SlimQueryResult) {}
+
+    // Stores key-value pairs: domain and it's score
+    rpc Store(stream DomainScore) returns (stream SlimQueryResult){}
+}

@@ -1,0 +1,8 @@
+- Analysis module selection logic
+- fix analyzer tests
+- gRPC communication between the different modules
+- User facing API
+
+- Cache for recent queries (maybe)
+- DNS service (maybe)
+- Add more collectors, ingestors and analyzers (maybe)

@@ -1,0 +1,34 @@
+syntax = "proto3";
+package api;
+
+import "api-comms.proto";
+import "domain.proto";
+import "statuscode.proto";
+
+// Cache entry point for communication.
+// Expects calls either from API or recollection module
+service Cache {
+
+    // Query domains against any and all avaliable phishing links,
+    // such as those in the DB, and analyze it against those specific domains
+    // that were configured in the analyzer
+    //
+    // Note that this will always be prioritized, so this should be callled on a users'
+    // behalf, never as an automated process
+    rpc FastQuery(stream Domain) returns (stream QueryResult) {}
+
+    // Same behaviour as FastQuery, but without priority.
+    // Intended for the recollector
+    rpc SlowQuery(stream Domain) returns (stream SlimQueryResult) {}
+    // TODO: Check against an array of domains, force re-analysis, etc
+
+}
+
+// Similar to QueryResult, but with less information.
+// used mainly for internal communications
+message SlimQueryResult {
+    // Status code, error message (if any)
+    Result status = 1;
+
+    DomainScore domain = 2;
+}

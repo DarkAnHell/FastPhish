@@ -2,6 +2,7 @@ syntax = "proto3";
 package api;
 
 // Status codes for any type of response, by both server or client.
+// Loosely based on HTTP Response Codes, but obviously formatted how it fits us better
 enum StatusCode {
     // XX - Debug codes. This should only be used during development.
     GENERIC_DEBUG = 0;
@@ -11,12 +12,19 @@ enum StatusCode {
     // Should only be used if none other OK message is valid, and for some reason
     // you did not implement a custom OK code for your case.
     GENERIC_OK = 100;
+    // Stored on database correctly
+    STORE_S_OK = 101;
+    // Got score for domain correctly
+    GET_SCORE_S_OK = 102;
+
 
     // 2XX - Client Errors
 
     // Should only be used if none other Client Error message is valid, and for some reason
     // you did not implement a custom Client Error code for your case.
     GENERIC_C_ERROR = 200;
+    // Server wasn't able to read client's stream.
+    READ_C_ERR = 211;
 
     // 3XX - Server Errors
 

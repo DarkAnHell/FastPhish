@@ -6,3 +6,16 @@ message Domain {
     // Name is the UTF-8 representation of the domain
     string Name = 1;
 }
+
+// Domain with score.
+message DomainScore {
+    // Name is the UTF-8 representation of the domain
+    string Name = 1;
+
+    // Score for said domain.
+    // This is a number ranging from 0 to 100,
+    // where 0 means the system is 100% sure the domain is NOT phishing
+    // and 100 means the system is 100% sure the domain IS phishing.
+    // Everything else in between is just a range of confidence.
+    uint32 Score = 2;
+}
