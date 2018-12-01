@@ -36,7 +36,7 @@ func main() {
 	}
 	log.Printf("Response from server: %v", dscli)
 
-	domains := []string{"twitter.com", "fb.com", "hackyhacky.es", "thisisafakedomain.es"}
+	domains := []string{"twitter.com", "fb.com", "hackyhacky.es", "thisisafakedomain.es", "twittur.com"}
 
 	for _, v := range domains {
 		log.Println("Sending msg from client...")

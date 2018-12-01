@@ -60,18 +60,26 @@ func (s server) Query(srv api.API_QueryServer) error {
 				resp.Safe = true
 			}
 		} else {
-			// TODO: Analyze proto
 			// If not, analyze
+			var resp *api.QueryResult
+			slimResp, err := s.Analyze(req)
+			if err != nil {
+				return errors.Wrapf(err, "could not query Analyzer: %v", err)
+			}
 			resp = &api.QueryResult{
 				Domain: &api.DomainScore{
-					Name:  req.GetName(),
-					Score: uint32(0),
+					Name:  slimResp.Domain.Name,
+					Score: slimResp.Domain.Score,
 				},
 				Status: &api.Result{
-					Message: "OK",
-					Status:  api.StatusCode_GENERIC_OK,
-				},
-				Safe: true,
+					Message: slimResp.Status.Message,
+					Status:  slimResp.Status.Status,
+				}}
+			// TODO:Config for safeness
+			if resp.Domain.Score >= 70 {
+				resp.Safe = false
+			} else {
+				resp.Safe = true
 			}
 		}
 
@@ -121,6 +129,44 @@ func (s server) QueryDB(domain *api.Domain) (*api.SlimQueryResult, error) {
 		return nil, errors.Wrapf(err, "could not read response: %v", err)
 	}
 
+	if err := dscli.CloseSend(); err != nil {
+		return nil, errors.Wrapf(err, "could not close send: %v", err)
+	}
+
+	return resp, nil
+}
+
+// Checks if the DB has that already analyzed
+func (s server) Analyze(domain *api.Domain) (*api.SlimQueryResult, error) {
+	var conn *grpc.ClientConn
+
+	// Create the client TLS credentials
+	creds, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	if err != nil {
+		log.Fatalf("could not load tls cert: %s", err)
+	}
+
+	// TODO: Config
+	conn, err = grpc.Dial("localhost:1338", grpc.WithTransportCredentials(creds))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := api.NewAnalyzerClient(conn)
+	dscli, err := client.Analyze(context.Background())
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not create Analyzer: %v", err)
+	}
+
+	if err := dscli.Send(domain); err != nil {
+		return nil, errors.Wrapf(err, "could not send request: %v", err)
+	}
+
+	resp, err := dscli.Recv()
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not read response: %v", err)
+	}
 	if err := dscli.CloseSend(); err != nil {
 		return nil, errors.Wrapf(err, "could not close send: %v", err)
 	}
