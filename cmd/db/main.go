@@ -8,6 +8,7 @@ import (
 	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/db/redis"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
@@ -32,7 +33,14 @@ func main() {
 		log.Fatalf("could not listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	// Create the TLS credentials
+	// TODO: config.
+    creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
+    if err != nil {
+        log.Fatalf("could not load TLS keys: %s", err)
+    }
+
+	s := grpc.NewServer(grpc.Creds(creds))
 	api.RegisterDBServer(s, server{DB: db})
 	if err := s.Serve(l); err != nil {
 		log.Fatalf("could not serve: %v", err)

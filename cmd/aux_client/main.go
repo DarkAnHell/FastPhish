@@ -7,10 +7,17 @@ import (
 
 	"github.com/DarkAnHell/FastPhish/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:1337", grpc.WithInsecure())
+	// TODO: config.
+	creds, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	if err != nil {
+		log.Fatalf("could not load TLS cert: %v", err)
+	}
+
+	conn, err := grpc.Dial("localhost:1337", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
