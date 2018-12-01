@@ -36,7 +36,6 @@ This project should work on any latest Linux or macOS systems, but note that it 
 
 There is no reason why it shouldn't work on Windows, but we haven't tested it.
 
-
 ---
 
 ### Build steps
@@ -59,24 +58,47 @@ make build
 
 Edit or create config files for the binaries (examples avaliable at example_configs) before hand, and make sure to have a redis DB launched
 
-- Launch DB (should always be present):
+- Launch DB (should **always** be present):
 ```
 bin/db <redis-config.json>
 ```
 
-- Launch Analyzer (should always be present):
+- Launch Analyzer (should **always** be present):
 ```
 bin/analyzer <levenshtein-config.json>
 ```
 
-- Launch Certificate Transparency Logs parser:
+- Launch Certificate Transparency Logs parser: if you want to get data from CT Logs.
 ```
 bin/ctdemo <ctlogs.json>
 ```
 
-- Launch user API:
+- Launch user API (should **always** be present if you use the HTTP API or the `aux_client` module):
 ```
 bin/api
 ```
+
+- Launch CLI Client:
+
+```
+bin/aux_client
+```
+
+- Launch HTTP API:
+
+```
+bin/http
+```
+
+- Use HTTP API:
+
+```sh
+curl --silent --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"domain":"twistter.com"}' \
+  http://localhost:8080/
+```
+
+
 
 If you want to use the API connection, you can write your own gRPC client to connect to it. You have an example at **aux_client**, which you can also launch to see a prepared execution
