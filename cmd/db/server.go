@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/db"
@@ -34,6 +35,8 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 		if err != nil && err != db.ErrDBNotFound {
 			return fmt.Errorf("could not get score from DB: %v", err)
 		}
+		log.Printf("Read result for domain: %s", req.GetName())
+
 		resp := &api.SlimQueryResult{
 			Domain: &api.DomainScore{
 				Name:  req.GetName(),
