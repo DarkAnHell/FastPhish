@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: proto clean all build api run test
+.PHONY: proto clean all build api run test certs
 
 
 binary = a.out
@@ -10,7 +10,7 @@ binaries = $(shell ls $(cmd_path))
 bin_path = bin
 pkg_path = pkg
 
-all: clean api build
+all: clean api build certs
 
 api:
 	@echo "Building .proto files..."
@@ -20,6 +20,7 @@ clean:
 	@echo "Cleaning..."
 	-@rm -f api/*.pb.go
 	-@rm -r $(bin_path)
+	-@rm -fr certs
 
 build:
 	@echo "Building binaries"
@@ -27,3 +28,7 @@ build:
 
 test: all
 	go test -v ./...
+
+certs:
+	@mkdir -p certs
+	@openssl req -x509 -newkey rsa:4096 -keyout certs/server.key -out certs/server.crt -days 3650 -nodes -subj '/CN=localhost'

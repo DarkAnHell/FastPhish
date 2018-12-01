@@ -1,6 +1,6 @@
 {
 	"start": 0,
-	"size": 1000,
+	"size": 10000,
 	"logs": [
 		"https://ct.googleapis.com/rocketeer/",
 		"https://ct.googleapis.com/pilot/",
@@ -10,5 +10,5 @@
 		"https://ct.cloudflare.com/logs/nimbus2019/",
 		"https://ct.cloudflare.com/logs/nimbus2020/"
 	],
-	"concurrency": 7
+	"concurrency": 5
 }

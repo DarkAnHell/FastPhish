@@ -6,3 +6,5 @@
 api/*.pb.go
 
 bin
+
+certs

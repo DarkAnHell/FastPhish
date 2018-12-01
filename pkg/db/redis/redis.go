@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/DarkAnHell/FastPhish/api"
+	"github.com/DarkAnHell/FastPhish/pkg/db"
 	"github.com/go-redis/redis"
 )
 
@@ -46,14 +47,18 @@ func (r Redis) Store(d api.DomainScore) error {
 }
 
 func (r Redis) GetScore(domain string) (score int, err error) {
-	val, err := r.client.Get(domain).Result()
+	cmd := r.client.Get(domain)
+	if cmd.Err() == redis.Nil {
+		return 0, db.ErrDBNotFound
+	}
+	val, err := cmd.Result()
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	score, err = strconv.Atoi(val)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	return
