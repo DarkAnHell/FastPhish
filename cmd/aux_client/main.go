@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 
 	"github.com/DarkAnHell/FastPhish/api"
@@ -12,12 +13,12 @@ import (
 
 func main() {
 	// TODO: config.
-	creds, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
-	if err != nil {
-		log.Fatalf("could not load TLS cert: %v", err)
-	}
+	//creds, err := credentials.NewClientTLSFromFile("certs/server-cert.pem", "")
+	//if err != nil {
+	//	log.Fatalf("could not load TLS cert: %v", err)
+	//}
 
-	conn, err := grpc.Dial("localhost:1337", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial("localhost:1337", grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}

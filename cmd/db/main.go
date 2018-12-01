@@ -35,10 +35,10 @@ func main() {
 
 	// Create the TLS credentials
 	// TODO: config.
-    creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
-    if err != nil {
-        log.Fatalf("could not load TLS keys: %s", err)
-    }
+	creds, err := credentials.NewServerTLSFromFile("certs/server-cert.pem", "certs/server-key.pem")
+	if err != nil {
+		log.Fatalf("could not load TLS keys: %s", err)
+	}
 
 	s := grpc.NewServer(grpc.Creds(creds))
 	api.RegisterDBServer(s, server{DB: db})

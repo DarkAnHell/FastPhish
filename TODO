@@ -1,7 +1,6 @@
-- Analysis module selection logic
-- fix analyzer tests
-- gRPC communication between the different modules
-- User facing API
+- Analysis module selection logic + grpc
+- User facing API [OK] (analyze)
+- collectors + rpc
 
 - Cache for recent queries (maybe)
 - DNS service (maybe)
