@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/DarkAnHell/FastPhish/api"
-	"github.com/DarkAnHell/FastPhish/pkg/db"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -29,10 +28,7 @@ var (
 	creds credentials.TransportCredentials
 
 	conn     *grpc.ClientConn
-	analconn *grpc.ClientConn
-
-	dscli   api.DB_GetDomainsScoreClient
-	aclient api.Analyzer_AnalyzeClient
+	aclient api.API_QueryClient
 )
 
 func analyze(w http.ResponseWriter, req *http.Request) {
@@ -51,58 +47,18 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 	}
 
 	domain := &api.Domain{Name: r.Domain}
-	if err := dscli.Send(domain); err != nil {
+	if err := aclient.Send(domain); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "could not send domain to backend: %v", err)
 		return
 	}
-
-	resp, err := dscli.Recv()
-	if err != nil && err != db.ErrDBNotFound {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "could not query db: %v", err)
-		return
-	}
-	if resp != nil && resp.Status.Status != api.StatusCode_DOMAIN_NOT_FOUND_ON_DB {
-		// send to analyze
-		if err := aclient.Send(domain); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "could not send domain to analysis module: %v", err)
-			return
-		}
-
-		resp, err := aclient.Recv()
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "could not handle analysis result: %v", err)
-			return
-		}
-
-		var phishing bool
-		// TODO: config.
-		if resp.Domain.Score > uint32(70) {
-			phishing = true
-		}
-		userResp := &response{
-			Phising: phishing,
-			Score:   resp.Domain.Score,
-		}
-
-		b, err := json.Marshal(userResp)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "could not convert response to JSON: %v", err)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "%s\n", b)
-	}
+	resp, err := aclient.Recv()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "could not handle backend response: %v", err)
+		fmt.Fprintf(w, "could not send domain to backend: %v", err)
 		return
 	}
+	log.Printf("Got response with status %v: %s with score: %v", resp.GetStatus().Status, resp.GetDomain().Name, resp.GetDomain().Score)
 
 	var phishing bool
 	if resp.Domain.Score > uint32(70) {
@@ -132,34 +88,16 @@ func main() {
 	}
 
 	// TODO: Config
-	conn, err = grpc.Dial("localhost:50000", grpc.WithTransportCredentials(creds))
+	conn, err = grpc.Dial("localhost:1337", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
 	defer conn.Close()
 
-	// TODO: Config.
-	analconn, err = grpc.Dial("localhost:1338", grpc.WithTransportCredentials(creds))
-	if err != nil {
-		log.Fatalf("failed to connect: %v", err)
-	}
-	defer analconn.Close()
-
-	client := api.NewDBClient(conn)
-	dscli, err = client.GetDomainsScore(context.Background())
+	client := api.NewAPIClient(conn)
+	aclient, err = client.Query(context.Background())
 	if err != nil {
 		log.Fatalf("could not create DomainsScoreClient: %v", err)
-	}
-	defer func() {
-		if err := dscli.CloseSend(); err != nil {
-			log.Fatalf("could not close connection: %v", err)
-		}
-	}()
-
-	ac := api.NewAnalyzerClient(analconn)
-	aclient, err = ac.Analyze(context.Background())
-	if err != nil {
-		log.Fatalf("could not create analyzer: %v", err)
 	}
 	defer func() {
 		if err := aclient.CloseSend(); err != nil {
