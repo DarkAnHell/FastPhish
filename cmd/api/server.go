@@ -41,7 +41,7 @@ func (s server) Query(srv api.API_QueryServer) error {
 		if err != nil && err != ErrNotFound {
 			return errors.Wrapf(err, "could not query DB: %v", err)
 		}
-		if slimResp != nil {
+		if slimResp != nil && slimResp.Status.Status != api.StatusCode_DOMAIN_NOT_FOUND_ON_DB {
 			resp = &api.QueryResult{
 				Domain: &api.DomainScore{
 					Name:  slimResp.Domain.Name,
@@ -61,7 +61,6 @@ func (s server) Query(srv api.API_QueryServer) error {
 			}
 		} else {
 			// If not, analyze
-			var resp *api.QueryResult
 			slimResp, err := s.Analyze(req)
 			if err != nil {
 				return errors.Wrapf(err, "could not query Analyzer: %v", err)
@@ -82,7 +81,7 @@ func (s server) Query(srv api.API_QueryServer) error {
 				resp.Safe = true
 			}
 		}
-
+		log.Printf("%v", resp)
 		if err := srv.Send(resp); err != nil {
 			return fmt.Errorf("could not send response thorugh stream: %v", err)
 		}

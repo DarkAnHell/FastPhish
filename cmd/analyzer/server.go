@@ -36,8 +36,9 @@ func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
 
 		log.Printf("Results for domain %s", req.GetName())
 		for index, score := range out {
-			log.Printf("got %v score against %s", score, s.against[index])
+			log.Printf("got %d score against %s", score.Score, s.against[index])
 		}
+		log.Printf("Score: %d", max)
 
 		resp := &api.SlimQueryResult{
 			Domain: &api.DomainScore{
