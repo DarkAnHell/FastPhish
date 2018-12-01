@@ -3,8 +3,12 @@ package main
 import (
 	"os"
 	"context"
+	"fmt"
 	"log"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"github.com/DarkAnHell/FastPhish/pkg/db"
 	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/ct"
 )
@@ -27,6 +31,38 @@ func main() {
 		log.Fatalf("could not create CT client: %v", err)
 	}
 
+	// Create the client TLS credentials
+	creds, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	if err != nil {
+		log.Fatalf("could not load tls cert: %s", err)
+	}
+
+	// TODO: config.
+	//analconn, err := grpc.Dial("localhost:1338", grpc.WithInsecure())
+	//if err != nil {
+	//	log.Fatalf("failed to connect to analyzer service: %v", err)
+	//}
+	//defer analconn.Close()
+
+	// TODO: config.
+	dbconn, err := grpc.Dial("localhost:50000", grpc.WithTransportCredentials(creds))
+	if err != nil {
+		log.Fatalf("failed to connect to DB: %v", err)
+	}
+	defer dbconn.Close()
+
+	//aclient := api.NewAnalyzerClient(analconn)
+	//anal, err := aclient.Analyze(context.Background())
+	//if err != nil {
+	//	log.Fatalf("could not create analyzer: %v", err)
+	//}
+
+	dbclient := api.NewDBClient(dbconn)
+	db, err := dbclient.GetDomainsScore(context.Background())
+	if err != nil {
+		log.Fatalf("could not create domain score receiver: %v", err)
+	}
+
 	domains := make(chan api.Domain)
 	done := make(chan struct{})
 	go func() {
@@ -36,16 +72,54 @@ func main() {
 		close(done)
 	}()
 	go func () {
-		var total int
 		for {
 			select {
 			case d := <-domains:
-				total++
-				if total%1000 == 0 {
-					log.Printf("domain number %d is %s\n", total, d.Name)
-				}
+				go func(d api.Domain) {
+					ok, err := isNewDomain(db, &d)
+					if err != nil {
+						log.Printf("failed to check in DB: %v", err)
+						return
+					}
+					if !ok {
+						return
+					}
+					log.Printf("is %s domain new? %v", d.Name, ok)
+					/*
+					if err := anal.Send(&d); err != nil {
+						log.Printf("failed to send domain to analyzer: %v", err)
+						return
+					}
+
+					resp, err := anal.Recv()
+					if err != nil {
+						log.Printf("could not read response: %v", err)
+						return
+					}
+					log.Printf("Got response with status %v: %s with score: %v\n", resp.GetStatus().Status, resp.GetDomain().Name, resp.GetDomain().Score)
+					*/
+				}(d)
 			}
 		}
 	}()
 	<-done
+	if err := db.CloseSend(); err != nil {
+		log.Fatalf("could not close domains client: %v", err)
+	}
+}
+
+func isNewDomain(dbcli api.DB_GetDomainsScoreClient, d *api.Domain) (bool, error) {
+	if err := dbcli.Send(d); err != nil {
+		return false, fmt.Errorf("could not query DB with domain %s: %v", d.Name, err)
+	}
+
+	_, err := dbcli.Recv()
+	if err == db.ErrDBNotFound {
+		return true, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("could not read response from DB: %v", err)
+	}
+
+	return false, nil
 }
