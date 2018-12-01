@@ -26,11 +26,9 @@ func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
 
 		out := s.lev.Process(req.GetName(), s.against)
 		var max uint32
-		var maxIndex int
-		for index, score := range out {
+		for _, score := range out {
 			if score.Score > max {
 				max = score.Score
-				maxIndex = index
 			}
 		}
 
@@ -53,7 +51,6 @@ func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
 			return fmt.Errorf("could not send analysis result: %v", err)
 		}
 	}
-	return nil
 }
 
 //rpc Analyze(stream Domain) returns (stream SlimQueryResult) {}

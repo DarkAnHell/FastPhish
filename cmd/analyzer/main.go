@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	lev "github.com/DarkAnHell/FastPhish/pkg/analyzer/levenshtein"
 	"github.com/DarkAnHell/FastPhish/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
