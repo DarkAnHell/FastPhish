@@ -2,88 +2,118 @@ package levenshtein
 
 import (
 	"testing"
-
-	"github.com/DarkAnHell/FastPhish/pkg/analyzer"
 )
 
-func auxiliarTestScores(t *testing.T, scores []int, thresholds []int, expected []int) {
 
-	var l Levenshtein
-	l.cost = 1
-
-	for i := range scores {
-		l.threshold = thresholds[i]
-		got := l.translateScore(scores[i])
-		if got != expected[i] {
-			t.Errorf("Translations incorrect, got: %d, want: %d. (for %d - %d )", got, expected[i], scores[i], thresholds[i])
-		}
+func TestTranslateScoreZero(t *testing.T) {
+	tt := []struct{
+		score 	  int
+		threshold int
+		expected  int
+	}{
+		{0, 5, 0},
+		{0, 1, 0},
+		{0, 100, 0},
+		{100, 10, 0},
+		{5, 5, 0},
 	}
-}
 
-func auxiliarTestDomains(t *testing.T, domains []string, against []string, expected []int) {
-	var l Levenshtein
-	l.threshold = 10
-	l.cost = 1
-
-	for i, domain := range domains {
-		t.Run(domain, func(t *testing.T) {
-			stop := make(chan bool)
-			out := make(chan analyzer.DomainScore)
-			err := make(chan analyzer.DomainError)
-
-			l.internalProcess(domains[i], []string{against[i]}, stop, out, err)
-			for y := 0; y < len(domains); y++ {
-				select {
-				case res := <-out:
-					for i, d := range against {
-
-						if d == res.Domain {
-							if expected[i] != res.Score {
-								t.Errorf("Error in domain checking -> Got: %d for %s against %s. Expected %d", res.Score, d, against[i], expected[i])
-							}
-							break
-						}
-					}
-				case e := <-err:
-					t.Errorf("Unexpected error %v", e)
-				}
+	for _, tc := range tt {
+		t.Run("translate score zero", func(t *testing.T) {
+			l := &Levenshtein{
+				cfg: &config{
+					Threshold: tc.threshold,
+				},
+			}
+			got := l.dumpScore(tc.score)
+			if got != tc.expected {
+				t.Fatalf("failed to calculate score: got %d expected %d", got, tc.expected)
 			}
 		})
 	}
 }
 
-func TestTranslateScoreZero(t *testing.T) {
-
-	scores := []int{0, 0, 0, 100, 5}
-	thresholds := []int{5, 1, 100, 10, 5}
-	expected := []int{0, 0, 0, 0, 0}
-
-	auxiliarTestScores(t, scores, thresholds, expected)
-}
-
 func TestTranslateScoreRandom(t *testing.T) {
+	tt := []struct{
+		score 	  int
+		threshold int
+		expected  int
+	}{
+		{2, 10, 80},
+		{7, 5, 0},
+		{1, 10, 90},
+		{0, 10, 0},
+		{9, 10, 10},
+	}
 
-	scores := []int{2, 7, 1, 0, 9}
-	thresholds := []int{10, 5, 10, 10, 10}
-	expected := []int{80, 0, 90, 0, 10}
-
-	auxiliarTestScores(t, scores, thresholds, expected)
+	for _, tc := range tt {
+		t.Run("translate score zero", func(t *testing.T) {
+			l := &Levenshtein{
+				cfg: &config{
+					Threshold: tc.threshold,
+				},
+			}
+			got := l.dumpScore(tc.score)
+			if got != tc.expected {
+				t.Fatalf("failed to calculate score: got %d expected %d", got, tc.expected)
+			}
+		})
+	}
 }
 
 func TestScoreDomainsExact(t *testing.T) {
-	domains := []string{"twitter.com", "google.com", "facebook.es", "random.link.valid"}
-	checkAgainst := []string{"twitter.com", "google.com", "facebook.es", "random.link.valid"}
-	expected := []int{0, 0, 0, 0}
+	tt := []struct{
+		domain string
+		against []string
+		exp []int
+	}{
+		{"twitter.com", []string{"twitter.com"}, []int{0}},
+		{"google.com", []string{"google.com"}, []int{0}},
+		{"facebook.es", []string{"facebook.es"}, []int{0}},
+		{"random.link.valid", []string{"random.link.valid"}, []int{0}},
+	}
 
-	auxiliarTestDomains(t, domains, checkAgainst, expected)
-
+	for _, tc := range tt {
+		t.Run("score domains exact match", func(t *testing.T) {
+			l := &Levenshtein{
+				cfg: &config{
+					Cost: 1,
+					Threshold: 10,
+				},
+			}
+			got := l.Process(tc.domain, tc.against)
+			if uint32(tc.exp[0]) != got[0].GetScore() {
+				t.Fatalf("expected %d got %d", tc.exp[0], got[0].GetScore())
+			}
+		})
+	}
 }
 
 func TestScoreDomainsPhishing(t *testing.T) {
-	domains := []string{"twitter.com", "twi†ter.com", "google.com", "facebook.es", "random.link.valid"}
-	checkAgainst := []string{"twittter.com", "twitter.com", "joogle.com", "facebock.es", "rand.link.valid"}
-	expected := []int{90, 70, 90, 90, 80}
+	tt := []struct{
+		domain string
+		against []string
+		exp []int
+	}{
+		{"twitter.com", []string{"twittter.com"}, []int{90}},
+		{"twi†ter.com", []string{"twitter.com"}, []int{70}},
+		{"google.com", []string{"joogle.com"}, []int{90}},
+		{"facebook.es", []string{"facebock.es"}, []int{90}},
+		{"random.link.valid", []string{"rand.link.valid"}, []int{80}},
+	}
 
-	auxiliarTestDomains(t, domains, checkAgainst, expected)
-
+	for _, tc := range tt {
+		t.Run("score domains exact match", func(t *testing.T) {
+			l := &Levenshtein{
+				cfg: &config{
+					Cost: 1,
+					Threshold: 10,
+				},
+			}
+			got := l.Process(tc.domain, tc.against)
+			if uint32(tc.exp[0]) != got[0].GetScore() {
+				t.Fatalf("expected %d got %d", tc.exp[0], got[0].GetScore())
+			}
+		})
+	}
 }
