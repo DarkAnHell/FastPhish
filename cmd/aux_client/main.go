@@ -10,36 +10,19 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:50000", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:1337", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
 	defer conn.Close()
 
-	client := api.NewDBClient(conn)
-	dscli, err := client.GetDomainsScore(context.Background())
+	client := api.NewAPIClient(conn)
+	dscli, err := client.Query(context.Background())
 	if err != nil {
 		log.Fatalf("could not create DomainsScoreClient: %v", err)
 	}
 
-	dscliStore, err := client.Store(context.Background())
-	if err != nil {
-		log.Fatalf("could not create DomainsScoreClient: %v", err)
-	}
-
-	domains := []string{"twitter.com", "fb.com", "hackyhacky.es"}
-	for _, v := range domains {
-		log.Println("Sending msg from client...")
-		domain := &api.DomainScore{
-			Name:  v,
-			Score: uint32(5),
-		}
-
-		if err := dscliStore.Send(domain); err != nil {
-			log.Printf("could not send request: %v\n", err)
-			return
-		}
-	}
+	domains := []string{"twitter.com", "fb.com", "hackyhacky.es", "thisisafakedomain.es"}
 
 	for _, v := range domains {
 		log.Println("Sending msg from client...")

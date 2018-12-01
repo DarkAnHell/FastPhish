@@ -31,7 +31,7 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 		}
 
 		score, err := s.DB.GetScore(req.GetName())
-		if err != nil {
+		if err != nil && err != db.ErrDBNotFound {
 			return fmt.Errorf("could not get score from DB: %v", err)
 		}
 		resp := &api.SlimQueryResult{
