@@ -10,9 +10,6 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// TODO: This is just for testing, later on we will launch
-// every analyzer from here
-
 // TODO: fuzzy logic for deciding upon scores
 func main() {
 	// Parse config
@@ -41,11 +38,8 @@ func main() {
 		log.Fatalf("could not load TLS keys: %s", err)
 	}
 
-	opts := []grpc.ServerOption{grpc.Creds(creds)}
-
 	// create a gRPC server object
-	grpcServer := grpc.NewServer(opts...)
-
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	// attach the Ping service to the server
 	api.RegisterAnalyzerServer(grpcServer, *s)
 
@@ -53,17 +47,4 @@ func main() {
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatalf("failed to serve: %s", err)
 	}
-
-	// against := []string{
-	// 	"twistter.com",
-	// 	"twitter.com",
-	// 	"google.com",
-	// 	"twi†ter.com",
-	// 	"facebook.es",
-	// 	"random.link.valid",
-	// }
-	// out := anal.Process("twitter.com", against)
-	// for _, v := range out {
-	// 	fmt.Printf("For domain %s, levenshtein is %d%% sure it is phishing for domain twitter.com\n", v.GetName(), v.GetScore())
-	// }
 }
