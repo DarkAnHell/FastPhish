@@ -14,6 +14,7 @@ type server struct {
 }
 
 func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
+	log.Println("Ready!")
 	for {
 		req, err := srv.Recv()
 		if err == io.EOF {
@@ -37,15 +38,29 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 		}
 		log.Printf("Read result for domain: %s", req.GetName())
 
-		resp := &api.SlimQueryResult{
-			Domain: &api.DomainScore{
-				Name:  req.GetName(),
-				Score: uint32(score),
-			},
-			Status: &api.Result{
-				Message: "OK",
-				Status:  api.StatusCode_GET_SCORE_S_OK,
-			},
+		resp := &api.SlimQueryResult{}
+		if err == db.ErrDBNotFound {
+			resp = &api.SlimQueryResult{
+				Domain: &api.DomainScore{
+					Name:  req.GetName(),
+					Score: uint32(score),
+				},
+				Status: &api.Result{
+					Message: "Not Found",
+					Status:  api.StatusCode_DOMAIN_NOT_FOUND_ON_DB,
+				},
+			}
+		} else {
+			resp = &api.SlimQueryResult{
+				Domain: &api.DomainScore{
+					Name:  req.GetName(),
+					Score: uint32(score),
+				},
+				Status: &api.Result{
+					Message: "OK",
+					Status:  api.StatusCode_GET_SCORE_S_OK,
+				},
+			}
 		}
 		if err := srv.Send(resp); err != nil {
 			return fmt.Errorf("could not send response thorugh stream: %v", err)

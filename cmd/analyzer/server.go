@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/DarkAnHell/FastPhish/api"
 	lev "github.com/DarkAnHell/FastPhish/pkg/analyzer/levenshtein"
@@ -18,11 +18,13 @@ type Server struct {
 
 // Analyze runs analysis logic against the given domains.
 func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
+	log.Println("Ready!")
 	for {
 		req, err := d.Recv()
 		if err != nil {
 			return fmt.Errorf("could not receive domain: %v", err)
 		}
+		log.Printf("Recieved: %s\n", req.GetName())
 
 		out := s.lev.Process(req.GetName(), s.against)
 		var max uint32
@@ -32,19 +34,19 @@ func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
 			}
 		}
 
-		log.Printf("results for domain %s", req.GetName())
+		log.Printf("Results for domain %s", req.GetName())
 		for index, score := range out {
 			log.Printf("got %v score against %s", score, s.against[index])
 		}
 
 		resp := &api.SlimQueryResult{
 			Domain: &api.DomainScore{
-				Name: req.GetName(),
+				Name:  req.GetName(),
 				Score: max,
 			},
 			Status: &api.Result{
 				Message: "ANALYZED",
-				Status: api.StatusCode_ANALYZE_OK,
+				Status:  api.StatusCode_ANALYZE_OK,
 			},
 		}
 		if err := d.Send(resp); err != nil {
@@ -52,8 +54,6 @@ func (s Server) Analyze(d api.Analyzer_AnalyzeServer) error {
 		}
 	}
 }
-
-//rpc Analyze(stream Domain) returns (stream SlimQueryResult) {}
 
 // New creates a server and configures it.
 func New(r io.Reader, doms ...string) (*Server, error) {

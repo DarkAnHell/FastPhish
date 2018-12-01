@@ -35,6 +35,8 @@ enum StatusCode {
     GENERIC_S_ERROR = 300;
 
     // 9XX - Information
+    GENERIC_INFO = 900;
+    DOMAIN_NOT_FOUND_ON_DB = 901;
 }
 
 // A generic result message which should accompany

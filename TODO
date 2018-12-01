@@ -1,6 +1,5 @@
-- Analysis module selection logic + grpc
-- User facing API [OK] (analyze)
-- collectors + rpc
+- Analyzer save on db
+- api analyze if not on db
 
 - Cache for recent queries (maybe)
 - DNS service (maybe)

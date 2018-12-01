@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// TODO: config.
-	analconn, err := grpc.Dial("localhost:1338", grpc.WithInsecure())
+	analconn, err := grpc.Dial("localhost:1338", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect to analyzer service: %v", err)
 	}
@@ -79,14 +79,16 @@ func main() {
 			select {
 			case d := <-domains:
 				ok, err := isNewDomain(db, d)
+				log.Println("LUUUUUUUUUUUUL")
 				if err != nil {
 					log.Printf("failed to check in DB: %v", err)
 					continue
 				}
 				if !ok {
+					log.Printf("already had domain %s", d.Name)
 					continue
 				}
-				log.Printf("is %s domain new? %v", d.Name, ok)
+				log.Printf("new domain %s, analyzing", d.Name)
 				if err := anal.Send(&d); err != nil {
 					log.Printf("failed to send domain to analyzer: %v", err)
 					return
@@ -113,14 +115,14 @@ func isNewDomain(dbcli api.DB_GetDomainsScoreClient, d api.Domain) (bool, error)
 		return false, fmt.Errorf("could not query DB with domain %s: %v", d.Name, err)
 	}
 
-	resp, err := dbcli.Recv()
-	if err == db.ErrDBNotFound {
+	recv, err := dbcli.Recv()
+	if err == db.ErrDBNotFound || recv.Status.Status == api.StatusCode_DOMAIN_NOT_FOUND_ON_DB {
 		return true, nil
 	}
 	if err != nil {
 		return false, fmt.Errorf("could not read response from DB: %v", err)
 	}
-	log.Printf("%v", resp)
+	log.Println("THE FUCK")
 
 	return false, nil
 }

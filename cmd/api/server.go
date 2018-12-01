@@ -17,6 +17,7 @@ type server struct {
 }
 
 func (s server) Query(srv api.API_QueryServer) error {
+	log.Println("Ready!")
 	for {
 		req, err := srv.Recv()
 		if err == io.EOF {
