@@ -73,7 +73,6 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-
 		var phishing bool
 		// TODO: config.
 		if resp.Domain.Score > uint32(70) {
@@ -92,7 +91,7 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, b)
+		fmt.Fprintf(w, "%s\n", b)
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -116,7 +115,7 @@ func analyze(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, b)
+	fmt.Fprintf(w, "%s\n", b)
 }
 
 func main() {
