@@ -31,10 +31,4 @@ test: all
 
 certs:
 	@mkdir -p certs
-	@openssl req -x509 -newkey rsa:4096 -keyout certs/server-key.pem -out certs/server-cert.pem -days 365 -nodes -subj '/CN=localhost'
-#	@openssl genrsa -out certs/server.pass.key 2048
-#	@openssl rsa -in certs/server.pass.key -out certs/server.key
-#	-@rm -f certs/server.pass.key
-#	@openssl req -new -key certs/server.key -out certs/server.csr -subj "/C=UK/ST=Warwickshire/L=Leamington/O=OrgName/OU=IT Department/CN=localhost"
-#	@openssl x509 -req -days 365 -in certs/server.csr -signkey certs/server.key -out certs/server.crt
-
+	@openssl req -x509 -newkey rsa:4096 -keyout certs/server.key -out certs/server.crt -days 3650 -nodes -subj '/CN=localhost'

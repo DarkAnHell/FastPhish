@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/DarkAnHell/FastPhish/api"
 	"github.com/DarkAnHell/FastPhish/pkg/db"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type server struct {
@@ -84,8 +86,16 @@ var ErrNotFound = errors.New("query attribute not found")
 
 // Checks if the DB has that already analyzed
 func (s server) QueryDB(domain *api.Domain) (*api.SlimQueryResult, error) {
+	var conn *grpc.ClientConn
+
+	// Create the client TLS credentials
+	creds, err := credentials.NewClientTLSFromFile("certs/server.crt", "")
+	if err != nil {
+		log.Fatalf("could not load tls cert: %s", err)
+	}
+
 	// TODO: Config
-	conn, err := grpc.Dial("localhost:50000", grpc.WithInsecure())
+	conn, err = grpc.Dial("localhost:50000", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to connect: %v", err)
 	}

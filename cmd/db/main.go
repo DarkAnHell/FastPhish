@@ -35,14 +35,24 @@ func main() {
 
 	// Create the TLS credentials
 	// TODO: config.
-	creds, err := credentials.NewServerTLSFromFile("certs/server-cert.pem", "certs/server-key.pem")
+	creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
 	if err != nil {
 		log.Fatalf("could not load TLS keys: %s", err)
 	}
 
-	s := grpc.NewServer(grpc.Creds(creds))
-	api.RegisterDBServer(s, server{DB: db})
-	if err := s.Serve(l); err != nil {
-		log.Fatalf("could not serve: %v", err)
+	opts := []grpc.ServerOption{grpc.Creds(creds)}
+
+	// create a gRPC server object
+	grpcServer := grpc.NewServer(opts...)
+
+	s := server{DB: db}
+
+	// attach the Ping service to the server
+	api.RegisterDBServer(grpcServer, &s)
+
+	// start the server
+	if err := grpcServer.Serve(l); err != nil {
+		log.Fatalf("failed to serve: %s", err)
 	}
+
 }

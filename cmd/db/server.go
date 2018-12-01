@@ -18,7 +18,7 @@ func (s server) GetDomainsScore(srv api.DB_GetDomainsScoreServer) error {
 		if err == io.EOF {
 			return nil
 		}
-		if err != nil {
+		if err != nil || req == nil {
 			res := &api.SlimQueryResult{
 				Status: &api.Result{
 					Status:  api.StatusCode_READ_C_ERR,
