@@ -50,6 +50,7 @@ go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
 git clone --single-branch -b master https://github.com/DarkAnHell/FastPhish
 cd FastPhish
 make api
+make certs
 go mod init github.com/DarkAnHell/FastPhish
 make build
 # for example, run the whoisds data collector.
