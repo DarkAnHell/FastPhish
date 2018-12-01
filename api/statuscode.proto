@@ -25,6 +25,8 @@ enum StatusCode {
     GENERIC_C_ERROR = 200;
     // Server wasn't able to read client's stream.
     READ_C_ERR = 211;
+    // Domain was analyzed without errors.
+    ANALYZE_OK = 212;
 
     // 3XX - Server Errors
 
