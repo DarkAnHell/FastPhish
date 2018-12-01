@@ -79,7 +79,6 @@ func main() {
 			select {
 			case d := <-domains:
 				ok, err := isNewDomain(db, d)
-				log.Println("LUUUUUUUUUUUUL")
 				if err != nil {
 					log.Printf("failed to check in DB: %v", err)
 					continue
@@ -122,7 +121,6 @@ func isNewDomain(dbcli api.DB_GetDomainsScoreClient, d api.Domain) (bool, error)
 	if err != nil {
 		return false, fmt.Errorf("could not read response from DB: %v", err)
 	}
-	log.Println("THE FUCK")
 
 	return false, nil
 }
